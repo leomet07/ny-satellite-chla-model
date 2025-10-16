@@ -161,6 +161,8 @@ def get_number_of_trainig_rows_for_max_date_diff(max_date_diff: int):
 
 
 if __name__ == "__main__":
+    lagos_lookup_table.to_csv("generated_lagoslookuptable.csv")
+
     print("Max diff: ", all_data_cleaned["date_diff"].max())
     plt.rcParams.update(
         {"font.size": 18, "font.family": "sans-serif", "font.sans-serif": "Arial"}
