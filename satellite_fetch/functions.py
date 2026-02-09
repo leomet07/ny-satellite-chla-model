@@ -726,6 +726,7 @@ def get_s2_sr_cld_col(start_date, end_date, LakeShp) -> ee.ImageCollection:
         .filterBounds(AOI)
         .filterDate(start_date, end_date)
         .filter(ee.Filter.lte("CLOUDY_PIXEL_PERCENTAGE", CLOUD_FILTER))
+        # .select("SCL") # only take SCL band just to be safe
     )
 
     # print("s2_sr_col size: ", s2_sr_col.size().getInfo())
@@ -750,7 +751,7 @@ def get_s2_sr_cld_col(start_date, end_date, LakeShp) -> ee.ImageCollection:
         "QA10",
         "QA20",
         "QA60",
-        "SCL",
+        "SCL",  # only band from S2_SR_HARMONIZED
     )
 
     return s2_sr_cld_col_eval
@@ -956,6 +957,7 @@ ex. start_date = '2020-07-01'
     end_date = '2020-08-01'
 """
 
+
 def get_image_and_date_from_image_collection(coll, index, shp):
     image = ee.Image(coll.toList(coll.size()).get(index))
     image_index = image.get("system:index").getInfo()
@@ -963,6 +965,7 @@ def get_image_and_date_from_image_collection(coll, index, shp):
     image = image.clip(shp)
     image = image.toFloat()
     return image, image_index, date
+
 
 def get_raster(start_date, end_date, LakeShp, scale) -> ee.Image:
     date_range = ee.Filter.date(start_date, end_date)
@@ -1108,11 +1111,11 @@ def export_raster_main(
         "date": date,
         "id": lakeid,
         "scale": scale,
-        "image_index" : image_index[2:] # remove preface for collection
+        "image_index": image_index[2:],  # remove preface for collection
     }
-    if image_index[:2] == "1_": # first collection in merge, sentinel2a
+    if image_index[:2] == "1_":  # first collection in merge, sentinel2a
         new_metadata["satellite"] = "sentinel2a"
-    elif image_index[:2] == "2_": # second collection in merge, sentinel2b
+    elif image_index[:2] == "2_":  # second collection in merge, sentinel2b
         new_metadata["satellite"] = "sentinel2b"
     else:
         raise Exception("Can't determine the specific satellite from image index")
